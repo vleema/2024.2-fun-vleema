@@ -3,6 +3,7 @@ module Nat where
 import Prelude hiding (
   Num (..),
   div,
+  gcd,
   max,
   min,
   quot,
@@ -92,3 +93,10 @@ rem n m
 
 div :: Nat -> Nat -> (Nat, Nat)
 div n m = (quot n m, rem n m)
+
+gcd :: Nat -> Nat -> Nat
+gcd n O = n
+gcd a b = gcd b (rem a b)
+
+lcm :: Nat -> Nat -> Nat
+lcm a b = (a * b) `quot` gcd a b

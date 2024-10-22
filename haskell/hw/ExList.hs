@@ -2,17 +2,34 @@
 
 module ExList where
 
-import Prelude
-    ( Char , String , Int , Integer , Double , Float , Bool(..)
-    , Num(..) , Integral(..) , Enum(..) , Ord(..) , Eq(..)
-    , not , (&&) , (||)
-    , (.) , ($)
-    , flip , curry , uncurry
-    , otherwise , error , undefined
-    )
-import qualified Prelude   as P
-import qualified Data.List as L
-import qualified Data.Char as C
+import Data.Char qualified as C
+import Data.List qualified as L
+import Prelude (
+  Bool (..),
+  Char,
+  Double,
+  Enum (..),
+  Eq (..),
+  Float,
+  Int,
+  Integer,
+  Integral (..),
+  Num (..),
+  Ord (..),
+  String,
+  curry,
+  error,
+  flip,
+  not,
+  otherwise,
+  uncurry,
+  undefined,
+  ($),
+  (&&),
+  (.),
+  (||),
+ )
+import Prelude qualified as P
 
 {- import qualified ... as ... ?
 
@@ -28,7 +45,6 @@ C.toUpper :: Char -> Char
 You MUST NOT use ANY of these in your code
 
 -}
-
 
 {- Our lists vs Haskell lists
 
@@ -58,64 +74,102 @@ write [u,v]     for our u `Cons` (v `Cons` Nil)
 -}
 
 head :: [a] -> a
-head = undefined
+head [] = error "Tried using head on empty List"
+head (x : _) = x
 
 tail :: [a] -> [a]
-tail = undefined
+tail [] = error "Tried using tail on empty list"
+tail (_ : xs) = xs
 
 null :: [a] -> Bool
-null = undefined
+null [] = True
+null _ = False
 
-length :: Integral i => [a] -> i
-length = undefined
+length :: (Integral i) => [a] -> i
+length [] = 0
+length (_ : xs) = 1 + length xs
 
-sum :: Num a => [a] -> a
-sum = undefined
+sum :: (Num a) => [a] -> a
+sum [] = 0
+sum (x : xs) = x + sum xs
 
-product :: Num a => [a] -> a
-product = undefined
+product :: (Num a) => [a] -> a
+product [] = 1
+product (x : xs) = x * product xs
 
 reverse :: [a] -> [a]
-reverse = undefined
+reverse [] = []
+reverse (x : xs) = reverse xs ++ [x]
 
 (++) :: [a] -> [a] -> [a]
-(++) = undefined
+[] ++ l = l
+(x : xs) ++ l = x : (xs ++ l)
 
 -- right-associative for performance!
--- (what?!)
+-- (what?!) XD
 infixr 5 ++
 
 -- (snoc is cons written backwards)
 snoc :: a -> [a] -> [a]
-snoc = undefined
+snoc x xs = xs ++ [x]
 
 (<:) :: [a] -> a -> [a]
 (<:) = flip snoc
 
 -- different implementation of (++)
 (+++) :: [a] -> [a] -> [a]
-xs +++ []     = xs
-xs +++ [y]    = xs <: y
-xs +++ (y:ys) = (xs +++ [y]) +++ ys
+xs +++ [] = xs
+xs +++ [y] = xs <: y
+xs +++ (y : ys) = (xs +++ [y]) +++ ys
 
 -- left-associative for performance!
 -- (hmm??)
 infixl 5 +++
 
--- minimum :: Ord a => [a] -> a
--- maximum :: Ord a => [a] -> a
+minimum :: (Ord a) => [a] -> a
+minimum [] = error "Tried to get minimum empty list"
+minimum (x : xs)
+  | x <= minimum xs = x
+  | otherwise = minimum xs
 
--- take
--- drop
+maximum :: (Ord a) => [a] -> a
+maximum [] = error "Tried to get maximum at empty list"
+maximum (x : xs)
+  | x >= maximum xs = x
+  | otherwise = maximum xs
 
--- takeWhile
--- dropWhile
+take :: (Integral i) => i -> [a] -> [a]
+take 0 _ = []
+take n (x : xs) = x : take (n - 1) xs
 
--- tails
--- init
--- inits
+drop :: (Integral i) => i -> [a] -> [a]
+drop 0 lst = lst
+drop n (x : xs) = drop (n - 1) xs
 
--- subsequences
+takeWhile :: (a -> Bool) -> [a] -> [a]
+takeWhile _ [] = []
+takeWhile pred (x : xs)
+  | pred x = x : takeWhile pred xs
+  | otherwise = []
+
+dropWhile :: (a -> Bool) -> [a] -> [a]
+dropWhile _ [] = []
+dropWhile pred (x : xs)
+  | pred x = dropWhile pred xs
+  | otherwise = x : xs
+
+tails :: [a] -> [[a]]
+tails [] = [[]]
+tails (x : xs) = (x : xs) : tails xs
+
+init :: [a] -> [a]
+init [] = error "Tried to use init in empty list"
+init lst = take (length lst - 1) lst
+
+inits :: [a] -> [[a]]
+inits = reverse . tails
+
+-- subsequences :: [a] -> [[a]]
 
 -- any
 -- all
@@ -164,7 +218,7 @@ infixl 5 +++
 
 -- checks if the letters of a phrase form a palindrome (see below for examples)
 palindrome :: String -> Bool
-palindrome = undefined
+palindrome lst = reverse lst == lst
 
 {-
 
@@ -177,4 +231,3 @@ Examples of palindromes:
 "Doc, note I dissent.  A fast never prevents a fatness.  I diet on cod."
 
 -}
-

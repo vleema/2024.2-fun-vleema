@@ -1,4 +1,7 @@
 {-# LANGUAGE GADTs #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Use foldr" #-}
 
 module ExList where
 
@@ -169,33 +172,79 @@ init lst = take (length lst - 1) lst
 inits :: [a] -> [[a]]
 inits = reverse . tails
 
--- subsequences :: [a] -> [[a]]
+-- TODO: subsequences :: [a] -> [[a]]
 
--- any
--- all
+any :: (a -> Bool) -> [a] -> Bool
+any _ [] = False
+any pred (x : xs) = pred x || any pred xs
 
--- and
--- or
+all :: (a -> Bool) -> [a] -> Bool
+all _ [] = True
+all pred (x : xs) = pred x && all pred xs
 
--- concat
+and :: [Bool] -> Bool
+and [] = True
+and (bool : bools) = bool && and bools
+
+or :: [Bool] -> Bool
+or [] = False
+or (bool : bools) = bool || or bools
+
+concat :: [[a]] -> [a]
+concat [] = []
+concat (list : lists) = list ++ concat lists
 
 -- elem using the funciton 'any' above
+elem :: Eq a => a -> [a] -> Bool
+elem x = any (x ==)
 
 -- elem': same as elem but elementary definition
+elem' :: Eq a => a -> [a] -> Bool
+elem' _ [] = False
+elem' a (x : xs) = a == x || elem' a xs
+
 -- (without using other functions except (==))
 
 -- (!!)
+(!!) :: [a] -> Int -> a
+(x : _) !! 0 = x
+(x : xs) !! n
+  | n >= length (x : xs) = error "Index out of bounds while using (!!)"
+  | otherwise = xs !! (n - 1)
 
--- filter
--- map
+filter :: (a -> Bool) -> [a] -> [a]
+filter _ [] = []
+filter pred (x : xs)
+  | pred x = x : filter pred xs
+  | otherwise = filter pred xs
 
--- cycle
--- repeat
--- replicate
+map :: (a -> b) -> [a] -> [b]
+map _ [] = []
+map func (x : xs) = func x : map func xs
 
--- isPrefixOf
--- isInfixOf
--- isSuffixOf
+cycle :: [a] -> [a]
+cycle list = list ++ cycle list
+
+repeat :: a -> [a]
+repeat x = x : repeat x
+
+replicate :: Int -> a -> [a]
+replicate n = take n . repeat
+
+isPrefixOf :: Eq a => [a] -> [a] -> Bool
+isPrefixOf [] _ = True
+isPrefixOf _ [] = False
+isPrefixOf (x : xs) (y : ys) = x == y && isPrefixOf xs ys
+
+isInfixOf :: Eq a => [a] -> [a] -> Bool
+isInfixOf [] _ = True
+isInfixOf _ [] = False
+isInfixOf (x : xs) (y : ys)
+  | x == y = isInfixOf xs ys
+  | otherwise = isInfixOf (x : xs) ys
+
+isSuffixOf :: Eq a => [a] -> [a] -> Bool
+isSuffixOf l1 l2 = reverse l1 `isPrefixOf` reverse l2
 
 -- zip
 -- zipWith

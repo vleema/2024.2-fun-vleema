@@ -7,6 +7,7 @@ module ExList where
 
 import Data.Char qualified as C
 import Data.List qualified as L
+import Data.Text.Lazy (singleton)
 import Prelude (
   Bool (..),
   Char,
@@ -172,7 +173,11 @@ init lst = take (length lst - 1) lst
 inits :: [a] -> [[a]]
 inits = reverse . tails
 
--- TODO: subsequences :: [a] -> [[a]]
+subsequences :: [a] -> [[a]]
+subsequences [] = [[]]
+subsequences (x : xs) =
+  let tailSubseq = subsequences xs
+   in map (x :) tailSubseq ++ tailSubseq
 
 any :: (a -> Bool) -> [a] -> Bool
 any _ [] = False
@@ -246,28 +251,63 @@ isInfixOf (x : xs) (y : ys)
 isSuffixOf :: Eq a => [a] -> [a] -> Bool
 isSuffixOf l1 l2 = reverse l1 `isPrefixOf` reverse l2
 
--- zip
--- zipWith
+zip :: [a] -> [b] -> [(a, b)]
+zip _ [] = []
+zip (x : xs) (y : ys) = (x, y) : zip xs ys
 
--- intercalate
--- nub
+zipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+zipWith _ _ [] = []
+zipWith func (x : xs) (y : ys) = func x y : zipWith func xs ys
 
--- splitAt
+intercalate :: [a] -> [[a]] -> [a]
+intercalate_ [x] = x
+intercalate list (x : xs) = x ++ list ++ intercalate list xs
+
+nub :: Eq a => [a] -> [a]
+nub [] = []
+nub (x : xs) = x : nub (filter (/= x) xs)
+
+splitAt :: Int -> [a] -> ([a], [a])
+splitAt i list = (take i list, drop i list)
+
 -- what is the problem with the following?:
 -- splitAt n xs  =  (take n xs, drop n xs)
 
--- break
+break :: (a -> Bool) -> [a] -> ([a], [a])
+break pred list = (takeWhile pred list, dropWhile pred list)
 
--- lines
--- words
--- unlines
--- unwords
+lines :: String -> [String]
+lines str =
+  let (line, rest) = break (/= '\n') str
+   in line : case rest of
+        [] -> []
+        (_ : xs) -> lines xs
 
--- transpose
+words :: String -> [String]
+words str =
+  let (line, rest) = break isNotSpace str
+   in case line of
+        [] -> case rest of
+          [] -> []
+          (_ : xs) -> words xs
+        _ -> line : words (dropWhile isNotSpace rest)
+ where
+  isNotSpace ch = not $ ch == '\n' || ch == '\t' || ch == ' '
+
+unlines :: [String] -> String
+unlines = intercalate "\n"
+
+unwords :: [String] -> String
+unwords = intercalate " "
+
+transpose :: [[a]] -> [[a]]
+transpose [] = []
+transpose ([] : xss) = transpose xss
+transpose xss = map head xss : transpose (map tail xss)
 
 -- checks if the letters of a phrase form a palindrome (see below for examples)
 palindrome :: String -> Bool
-palindrome lst = reverse lst == lst
+palindrome list = reverse list == list
 
 {-
 

@@ -3,20 +3,23 @@
 module ExNat where
 
 -- Do not alter this import!
-import Prelude
-    ( Show(..)
-    , Eq(..)
-    , Ord(..)
-    , Num(..)
-    , Integral(..)
-    , Bool(..) , not , (&&) , (||)
-    , (++)
-    , ($)
-    , (.)
-    , undefined
-    , error
-    , otherwise
-    )
+import Prelude (
+  Bool (..),
+  Eq (..),
+  Integral (..),
+  Num (..),
+  Ord (..),
+  Show (..),
+  error,
+  not,
+  otherwise,
+  undefined,
+  ($),
+  (&&),
+  (++),
+  (.),
+  (||),
+ )
 
 -- Define evenerything that is undefined,
 -- without using standard Haskell functions.
@@ -31,45 +34,53 @@ data Nat where
 ----------------------------------------------------------------
 
 instance Show Nat where
-
-    -- zero  should be shown as O
-    -- three should be shown as SSSO
-    show = undefined
+  -- zero  should be shown as O
+  -- three should be shown as SSSO
+  show O = "O"
+  show (S n) = "S" ++ show n
 
 instance Eq Nat where
-
-    (==) = undefined
+  O == O = True
+  (S n) == (S m) = n == m
+  _ == _ = False
 
 instance Ord Nat where
+  O <= _ = True
+  _ <= O = False
+  (S n) <= (S m) = n <= m
 
-    (<=) = undefined
+  -- Ord does not REQUIRE defining min and max.
+  -- Howevener, you should define them WITHOUT using (<=).
+  -- Both are binary functions: max m n = ..., etc.
 
-    -- Ord does not REQUIRE defining min and max.
-    -- Howevener, you should define them WITHOUT using (<=).
-    -- Both are binary functions: max m n = ..., etc.
+  min O _ = O
+  min _ O = O
+  min (S n) (S m) = min n m
 
-    min = undefined
-
-    max = undefined
-
+  max O n = n
+  max n O = n
+  max (S n) (S m) = max n m
 
 ----------------------------------------------------------------
 -- internalized predicates
 ----------------------------------------------------------------
 
 isZero :: Nat -> Bool
-isZero = undefined
+isZero O = True
+isZero _ = False
 
 -- pred is the predecessor but we define zero's to be zero
 pred :: Nat -> Nat
-pred = undefined
+pred O = O
+pred (S n) = n
 
 even :: Nat -> Bool
-even = undefined
+even O = True
+even (S n) = odd n
 
 odd :: Nat -> Bool
-odd = undefined
-
+odd O = False
+odd (S n) = even n
 
 ----------------------------------------------------------------
 -- operations
@@ -77,56 +88,65 @@ odd = undefined
 
 -- addition
 (<+>) :: Nat -> Nat -> Nat
-(<+>) = undefined
+O <+> n = n
+(S n) <+> m = S (n <+> m)
 
 -- This is called the dotminus or monus operator
 -- (also: proper subtraction, arithmetic subtraction, ...).
 -- It behaves like subtraction, except that it returns 0
 -- when "normal" subtraction would return a negative number.
 (<->) :: Nat -> Nat -> Nat
-(<->) = undefined
+O <-> m = O
+n <-> O = n
+(S n) <-> (S m) = n <-> m
 
 -- multiplication
 (<*>) :: Nat -> Nat -> Nat
-(<*>) = undefined
+O <*> _ = O
+(S n) <*> m = m <+> (n <*> m)
 
 -- exponentiation
 (<^>) :: Nat -> Nat -> Nat
-(<^>) = undefined
+_ <^> O = S O
+n <^> (S m) = (n <^> m) <*> n
 
 -- quotient
 (</>) :: Nat -> Nat -> Nat
-(</>) = undefined
+_ </> O = error "Division by 0 is undefined"
+n </> m = if m >= n then O else S $ (n <-> m) </> m
 
 -- remainder
 (<%>) :: Nat -> Nat -> Nat
-(<%>) = undefined
+_ <%> O = error "Division by 0 is undefined"
+n <%> m = if m > n then n else (n <-> m) <%> m
 
 -- divides
 (<|>) :: Nat -> Nat -> Bool
-(<|>) = undefined
+n <|> m = n <%> m == O
 
 divides = (<|>)
-
 
 -- x `absDiff` y = |x - y|
 -- (Careful here: this - is the real minus operator!)
 absDiff :: Nat -> Nat -> Nat
-absDiff = undefined
+absDiff a b = if a < b then b <-> a else a <-> b
 
 (|-|) = absDiff
 
 factorial :: Nat -> Nat
-factorial = undefined
+factorial O = S O
+factorial (S n) = S n * factorial n
 
 -- signum of a number (-1, 0, or 1)
 sg :: Nat -> Nat
-sg = undefined
+sg O = O
+sg (S _) = S O
 
 -- lo b a is the floor of the logarithm base b of a
 lo :: Nat -> Nat -> Nat
-lo = undefined
-
+lo _ O = error "There is no Logarithm of 0"
+lo _ (S O) = O
+lo b a = if b < a then O else S $ lo b (a </> b)
 
 ----------------------------------------------------------------
 -- Num & Integral fun
@@ -136,22 +156,21 @@ lo = undefined
 -- Do NOT use the following functions in the definitions above!
 
 toNat :: Integral a => a -> Nat
-toNat = undefined
+toNat 0 = O
+toNat i = if i > 0 then S $ toNat (i - 1) else error "There is no negative natural number"
 
 fromNat :: Integral a => Nat -> a
-fromNat = undefined
-
+fromNat O = 0
+fromNat (S n) = 1 + fromNat n
 
 -- Voilá: we can now easily make Nat an instance of Num.
 instance Num Nat where
-
-    (+) = (<+>)
-    (*) = (<*>)
-    (-) = (<->)
-    abs n = n
-    signum = sg
-    fromInteger x
-      | x < 0     = undefined
-      | x == 0    = undefined
-      | otherwise = undefined
-
+  (+) = (<+>)
+  (*) = (<*>)
+  (-) = (<->)
+  abs n = n
+  signum = sg
+  fromInteger x
+    | x < 0 = error "There's no negative natural number"
+    | x == 0 = O
+    | otherwise = S $ fromInteger (x - 1)

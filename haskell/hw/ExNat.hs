@@ -126,6 +126,13 @@ n <|> m = n <%> m == O
 
 divides = (<|>)
 
+gcd :: Nat -> Nat -> Nat
+gcd n O = n
+gcd a b = gcd b (a <%> b)
+
+lcm :: Nat -> Nat -> Nat
+lcm a b = (a * b) </> gcd a b
+
 -- x `absDiff` y = |x - y|
 -- (Careful here: this - is the real minus operator!)
 absDiff :: Nat -> Nat -> Nat
@@ -136,6 +143,11 @@ absDiff a b = if a < b then b <-> a else a <-> b
 factorial :: Nat -> Nat
 factorial O = S O
 factorial (S n) = S n * factorial n
+
+fibonacci :: Nat -> Nat
+fibonacci O = O
+fibonacci (S O) = S O
+fibonacci (S (S n)) = fibonacci (S n) <+> fibonacci n
 
 -- signum of a number (-1, 0, or 1)
 sg :: Nat -> Nat

@@ -260,7 +260,7 @@ zipWith _ _ [] = []
 zipWith func (x : xs) (y : ys) = func x y : zipWith func xs ys
 
 intercalate :: [a] -> [[a]] -> [a]
-intercalate_ [x] = x
+intercalate _ [x] = x
 intercalate list (x : xs) = x ++ list ++ intercalate list xs
 
 nub :: Eq a => [a] -> [a]

@@ -1,102 +1,200 @@
+{-# LANGUAGE GADTs #-}
+
 module Nat where
 
-import Prelude hiding (
+-- Do not alter this import!
+import Prelude (
+  Bool (..),
+  Enum (..),
+  Eq (..),
+  Integral (..),
   Num (..),
-  div,
-  gcd,
-  max,
-  min,
-  quot,
-  rem,
-  (<),
+  Ord (..),
+  Rational (..),
+  Real (..),
+  Show (..),
+  error,
+  not,
+  otherwise,
+  undefined,
+  ($),
+  (&&),
+  (++),
+  (.),
+  (||),
  )
+
+-- Define evenerything that is undefined,
+-- without using standard Haskell functions.
+-- (Hint: recursion is your friend!)
 
 data Nat where
   O :: Nat
   S :: Nat -> Nat
-  deriving (Eq)
 
--- abbrevs (syntactic sugar)
-o, so, sso, ssso, sssso :: Nat
-o = O
-so = S o
-sso = S so
-ssso = S sso
-sssso = S ssso
-des = S (S (S (S (S (S (S (S (S (S O)))))))))
+----------------------------------------------------------------
+-- typeclass implementations
+----------------------------------------------------------------
 
 instance Show Nat where
-  show O = "0"
-  show (S O) = "1"
-  show (S (S O)) = "2"
-  show (S (S (S O))) = "3"
-  show (S (S (S (S O)))) = "4"
-  show (S (S (S (S (S O))))) = "5"
-  show (S (S (S (S (S (S O)))))) = "6"
-  show (S (S (S (S (S (S (S O))))))) = "7"
-  show (S (S (S (S (S (S (S (S O)))))))) = "8"
-  show (S (S (S (S (S (S (S (S (S O))))))))) = "9"
-  show n = show (quot n des) ++ show (rem n des)
+  -- zero  should be shown as O
+  -- three should be shown as SSSO
+  show O = "O"
+  show (S n) = "S" ++ show n
 
-(+) :: Nat -> Nat -> Nat
-O + n = n
-(S n) + m = S (n + m)
+instance Eq Nat where
+  O == O = True
+  (S n) == (S m) = n == m
+  _ == _ = False
 
-(*) :: Nat -> Nat -> Nat
-O * _ = o
-(S n) * m = m + (n * m)
+instance Ord Nat where
+  O <= _ = True
+  _ <= O = False
+  (S n) <= (S m) = n <= m
 
-(-) :: Nat -> Nat -> Nat
-O - m = O
-n - O = n
-(S n) - (S m) = n - m
+  -- Ord does not REQUIRE defining min and max.
+  -- Howevener, you should define them WITHOUT using (<=).
+  -- Both are binary functions: max m n = ..., etc.
 
-fact :: Nat -> Nat
-fact O = S O
-fact (S n) = S n * fact n
+  min O _ = O
+  min _ O = O
+  min (S n) (S m) = min n m
 
-fib :: Nat -> Nat
-fib O = O
-fib (S O) = S O
-fib (S (S n)) = fib (S n) + fib n
+  max O n = n
+  max n O = n
+  max (S n) (S m) = max n m
 
-min :: Nat -> Nat -> Nat
-min O _ = O
-min _ O = O
-min (S n) (S m) = S (min n m)
+----------------------------------------------------------------
+-- internalized predicates
+----------------------------------------------------------------
 
-(<) :: Nat -> Nat -> Bool
-n < O = False
-O < (S n) = True
-(S n) < (S m)
-  | n == m = False
-  | otherwise = n < m
+isZero :: Nat -> Bool
+isZero O = True
+isZero _ = False
 
-max :: Nat -> Nat -> Nat
-max n O = n
-max O m = m
-max (S n) (S m) = S (max n m)
+-- pred is the predecessor but we define zero's to be zero
+pred :: Nat -> Nat
+pred O = O
+pred (S n) = n
 
-quot :: Nat -> Nat -> Nat
-quot n O = error "Division by 0 is undefined"
-quot O _ = O
-quot n m
-  | max n m == m = O
-  | otherwise = S (quot (n - m) m)
+even :: Nat -> Bool
+even O = True
+even (S n) = odd n
 
-rem :: Nat -> Nat -> Nat
-rem m O = error "Division by 0 is undefined"
-rem O _ = O
-rem n m
-  | n < m = n
-  | otherwise = rem (n - m) m
+odd :: Nat -> Bool
+odd O = False
+odd (S n) = even n
 
-div :: Nat -> Nat -> (Nat, Nat)
-div n m = (quot n m, rem n m)
+----------------------------------------------------------------
+-- operations
+----------------------------------------------------------------
+
+-- addition
+(<+>) :: Nat -> Nat -> Nat
+O <+> n = n
+(S n) <+> m = S (n <+> m)
+
+-- This is called the dotminus or monus operator
+-- (also: proper subtraction, arithmetic subtraction, ...).
+-- It behaves like subtraction, except that it returns 0
+-- when "normal" subtraction would return a negative number.
+(<->) :: Nat -> Nat -> Nat
+O <-> m = O
+n <-> O = n
+(S n) <-> (S m) = n <-> m
+
+-- multiplication
+(<*>) :: Nat -> Nat -> Nat
+O <*> _ = O
+(S n) <*> m = m <+> (n <*> m)
+
+-- exponentiation
+(<^>) :: Nat -> Nat -> Nat
+_ <^> O = S O
+n <^> (S m) = (n <^> m) <*> n
+
+-- quotient
+(</>) :: Nat -> Nat -> Nat
+_ </> O = error "Division by 0 is undefined"
+n </> m = if m >= n then O else S $ (n <-> m) </> m
+
+-- remainder
+(<%>) :: Nat -> Nat -> Nat
+_ <%> O = error "Division by 0 is undefined"
+n <%> m = if m > n then n else (n <-> m) <%> m
+
+-- divides
+(<|>) :: Nat -> Nat -> Bool
+n <|> m = n <%> m == O
+
+divides = (<|>)
 
 gcd :: Nat -> Nat -> Nat
 gcd n O = n
-gcd a b = gcd b (rem a b)
+gcd a b = gcd b (a <%> b)
 
 lcm :: Nat -> Nat -> Nat
-lcm a b = (a * b) `quot` gcd a b
+lcm a b = (a * b) </> gcd a b
+
+-- x `absDiff` y = |x - y|
+-- (Careful here: this - is the real minus operator!)
+absDiff :: Nat -> Nat -> Nat
+absDiff a b = if a < b then b <-> a else a <-> b
+
+(|-|) = absDiff
+
+factorial :: Nat -> Nat
+factorial O = S O
+factorial (S n) = S n * factorial n
+
+fibonacci :: Nat -> Nat
+fibonacci O = O
+fibonacci (S O) = S O
+fibonacci (S (S n)) = fibonacci (S n) <+> fibonacci n
+
+-- signum of a number (-1, 0, or 1)
+sg :: Nat -> Nat
+sg O = O
+sg (S _) = S O
+
+-- lo b a is the floor of the logarithm base b of a
+lo :: Nat -> Nat -> Nat
+lo _ O = error "There is no Logarithm of 0"
+lo _ (S O) = O
+lo b a = if b < a then O else S $ lo b (a </> b)
+
+----------------------------------------------------------------
+-- Num & Integral fun
+----------------------------------------------------------------
+
+-- For the following functions we need Num(..).
+-- Do NOT use the following functions in the definitions above!
+
+toNat :: Integral a => a -> Nat
+toNat 0 = O
+toNat i = if i > 0 then S $ toNat (i - 1) else error "There is no negative natural number"
+
+fromNat :: Integral a => Nat -> a
+fromNat O = 0
+fromNat (S n) = 1 + fromNat n
+
+-- Voilá: we can now easily make Nat an instance of Num.
+instance Num Nat where
+  (+) = (<+>)
+  (*) = (<*>)
+  (-) = (<->)
+  abs n = n
+  signum = sg
+  fromInteger x
+    | x < 0 = error "There's no negative natural number"
+    | x == 0 = O
+    | otherwise = S $ fromInteger (x - 1)
+
+instance Enum Nat where
+  fromEnum O = 0
+  fromEnum (S n) = 1 + fromEnum n
+
+  toEnum x
+    | x == 0 = 0
+    | x > 0 = S 0 + toEnum (x - 1)
+    | otherwise = 0

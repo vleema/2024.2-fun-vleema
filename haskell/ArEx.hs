@@ -2,22 +2,22 @@
 
 module ArEx where
 
-import Prelude (Int, negate, ($), (*), (+))
+import Prelude (Int, max, negate, ($), (*), (+))
 
 data ArEx where
   Int :: Int -> ArEx
-  Plus :: Int -> ArEx -> ArEx
-  Mult :: Int -> ArEx -> ArEx
+  Plus :: ArEx -> ArEx -> ArEx
+  Mult :: ArEx -> ArEx -> ArEx
   Minus :: ArEx -> ArEx
 
 eval :: ArEx -> Int
 eval (Int x) = x
-eval (x `Plus` e) = x + eval e
-eval (x `Mult` e) = x * eval e
+eval (x `Plus` y) = eval x + eval y
+eval (x `Mult` y) = eval x * eval y
 eval (Minus e) = negate $ eval e
 
 height :: ArEx -> Int
 height (Int x) = 1
 height (Minus x) = 1
-height (x `Plus` e) = 1 + height e
-height (x `Mult` e) = 1 + height e
+height (x `Plus` y) = 1 + max (height x) (height y)
+height (x `Mult` y) = 1 + max (height x) (height y)

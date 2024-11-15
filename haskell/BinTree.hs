@@ -33,22 +33,22 @@ height :: BinTree a -> Int
 height (Node _ leftTree rightTree) = 1 + max (maybe 0 height leftTree) (maybe 0 height rightTree)
 
 search :: (Ord a) => a -> BinTree a -> Maybe Path
-search value (Node nodeValue leftTree rightTree)
-  | value == nodeValue = Just []
-  | value > nodeValue = addPath R rightTree
-  | value < nodeValue = addPath L leftTree
+search value (Node rootValue leftTree rightTree)
+  | value == rootValue = Just []
+  | value > rootValue = addPath R rightTree
+  | value < rootValue = addPath L leftTree
  where
   addPath direction subtree =
     (direction :) <$> (search value =<< subtree)
 
 insert :: (Ord a) => a -> BinTree a -> BinTree a
-insert value (Node nodeValue leftTree rightTree)
-  | value == nodeValue = Node nodeValue leftTree rightTree
-  | value > nodeValue = case leftTree of
-      Nothing -> Node nodeValue (Just (Node value Nothing Nothing)) rightTree
+insert value (Node rootValue leftTree rightTree)
+  | value == rootValue = Node rootValue leftTree rightTree
+  | value > rootValue = case leftTree of
+      Nothing -> Node rootValue (Just (Node value Nothing Nothing)) rightTree
       Just leftTree -> insert value leftTree
-  | value < nodeValue = case rightTree of
-      Nothing -> Node nodeValue leftTree (Just (Node value Nothing Nothing))
+  | value < rootValue = case rightTree of
+      Nothing -> Node rootValue leftTree (Just (Node value Nothing Nothing))
       Just rightTree -> insert value rightTree
 
 --

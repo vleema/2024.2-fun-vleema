@@ -23,33 +23,36 @@ postOrder (Node value leftTree rightTree) =
   maybe "" preOrder leftTree ++ maybe "" preOrder rightTree ++ show value
 
 levelOrder :: (Show a) => BinTree a -> String
-levelOrder binTree = concat [showCurrentLevel level binTree | level <- [0 .. height binTree]]
+levelOrder binTree = concat [showLevel level binTree | level <- [0 .. height binTree]]
 
-showCurrentLevel :: (Show a) => Int -> BinTree a -> String
-showCurrentLevel 0 (Node value _ _) = show value
-showCurrentLevel n (Node _ leftTree rightTree) = maybe "" (showCurrentLevel (n - 1)) leftTree ++ maybe "" (showCurrentLevel (n - 1)) rightTree
+showLevel :: (Show a) => Int -> BinTree a -> String
+showLevel 0 (Node value _ _) = show value
+showLevel n (Node _ leftTree rightTree) = maybe "" (showLevel (n - 1)) leftTree ++ maybe "" (showLevel (n - 1)) rightTree
 
 height :: BinTree a -> Int
 height (Node _ leftTree rightTree) = 1 + max (maybe 0 height leftTree) (maybe 0 height rightTree)
 
-binSearch :: (Ord a) => a -> BinTree a -> Maybe Path
-binSearch value (Node nodeValue leftTree rightTree)
+search :: (Ord a) => a -> BinTree a -> Maybe Path
+search value (Node nodeValue leftTree rightTree)
   | value == nodeValue = Just []
   | value > nodeValue = addPath R rightTree
   | value < nodeValue = addPath L leftTree
  where
   addPath direction subtree =
-    (direction :) <$> (binSearch value =<< subtree)
+    (direction :) <$> (search value =<< subtree)
 
-binTreeInsert :: (Ord a) => a -> BinTree a -> BinTree a
-binTreeInsert value (Node nodeValue leftTree rightTree)
+insert :: (Ord a) => a -> BinTree a -> BinTree a
+insert value (Node nodeValue leftTree rightTree)
   | value == nodeValue = Node nodeValue leftTree rightTree
   | value > nodeValue = case leftTree of
       Nothing -> Node nodeValue (Just (Node value Nothing Nothing)) rightTree
-      Just leftTree -> binTreeInsert value leftTree
+      Just leftTree -> insert value leftTree
   | value < nodeValue = case rightTree of
       Nothing -> Node nodeValue leftTree (Just (Node value Nothing Nothing))
-      Just rightTree -> binTreeInsert value rightTree
+      Just rightTree -> insert value rightTree
+
+--
+-- remove :: (Ord a) => a -> BinTree a -> BinTree a
 
 fetch :: [Direction] -> BinTree a -> Maybe a
 fetch [] (Node value _ _) = Just value

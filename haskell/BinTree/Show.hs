@@ -6,14 +6,15 @@ instance (Show a) => Show (BinTree a) where
   show tree = unlines $ snd $ prettyPrint tree
 
 prettyPrint :: (Show a) => BinTree a -> (Int, [String])
+prettyPrint Nil = (0, [])
 prettyPrint (Node val left right) = (nWidth, resultLines)
  where
   valStr = show val
   valWidth = length valStr
 
-  (leftWidth, leftLines) = maybe (0, []) prettyPrint left
+  (leftWidth, leftLines) = prettyPrint left
 
-  (rightWidth, rightLines) = maybe (0, []) prettyPrint right
+  (rightWidth, rightLines) = prettyPrint right
 
   nWidth = max (leftWidth + rightWidth + 1) valWidth
 

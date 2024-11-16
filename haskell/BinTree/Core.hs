@@ -19,12 +19,12 @@ preOrder (Node value leftTree rightTree) =
 symOrder :: (Show a) => BinTree a -> String
 symOrder Nil = ""
 symOrder (Node value leftTree rightTree) =
-  preOrder leftTree ++ show value ++ " " ++ preOrder rightTree
+  symOrder leftTree ++ show value ++ " " ++ symOrder rightTree
 
 postOrder :: (Show a) => BinTree a -> String
 postOrder Nil = ""
 postOrder (Node value leftTree rightTree) =
-  preOrder leftTree ++ preOrder rightTree ++ show value ++ " "
+  postOrder leftTree ++ postOrder rightTree ++ show value ++ " "
 
 levelOrder :: (Show a) => BinTree a -> String
 levelOrder binTree = concat [showLevel level binTree | level <- [0 .. height binTree]]
@@ -67,7 +67,7 @@ remove value (Node rootValue leftTree rightTree)
        where
         leftMaximum = case fetchRightMost leftTree of
           Just rightMost -> rightMost
-          Nothing -> error "Unexpected behaviour while fetching rightMost"
+          Nothing -> error "Unexpected behaviour while fetching right most value"
         alteredLeftTree = removeRightMost leftTree
 
 fetch :: Path -> BinTree a -> Maybe a

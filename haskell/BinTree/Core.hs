@@ -14,24 +14,24 @@ type Path = [Direction]
 preOrder :: (Show a) => BinTree a -> String
 preOrder Nil = ""
 preOrder (Node value leftTree rightTree) =
-  show value ++ preOrder leftTree ++ preOrder rightTree
+  show value ++ " " ++ preOrder leftTree ++ preOrder rightTree
 
 symOrder :: (Show a) => BinTree a -> String
 symOrder Nil = ""
 symOrder (Node value leftTree rightTree) =
-  preOrder leftTree ++ show value ++ preOrder rightTree
+  preOrder leftTree ++ show value ++ " " ++ preOrder rightTree
 
 postOrder :: (Show a) => BinTree a -> String
 postOrder Nil = ""
 postOrder (Node value leftTree rightTree) =
-  preOrder leftTree ++ preOrder rightTree ++ show value
+  preOrder leftTree ++ preOrder rightTree ++ show value ++ " "
 
 levelOrder :: (Show a) => BinTree a -> String
 levelOrder binTree = concat [showLevel level binTree | level <- [0 .. height binTree]]
 
 showLevel :: (Show a) => Int -> BinTree a -> String
 showLevel _ Nil = ""
-showLevel 0 (Node value _ _) = show value
+showLevel 0 (Node value _ _) = show value ++ " "
 showLevel n (Node _ leftTree rightTree) = showLevel (n - 1) leftTree ++ showLevel (n - 1) rightTree
 
 height :: BinTree a -> Int

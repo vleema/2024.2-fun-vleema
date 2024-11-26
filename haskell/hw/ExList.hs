@@ -200,11 +200,11 @@ concat [] = []
 concat (list : lists) = list ++ concat lists
 
 -- elem using the funciton 'any' above
-elem :: Eq a => a -> [a] -> Bool
+elem :: (Eq a) => a -> [a] -> Bool
 elem x = any (x ==)
 
 -- elem': same as elem but elementary definition
-elem' :: Eq a => a -> [a] -> Bool
+elem' :: (Eq a) => a -> [a] -> Bool
 elem' _ [] = False
 elem' a (x : xs) = a == x || elem' a xs
 
@@ -236,19 +236,19 @@ repeat x = x : repeat x
 replicate :: Int -> a -> [a]
 replicate n = take n . repeat
 
-isPrefixOf :: Eq a => [a] -> [a] -> Bool
+isPrefixOf :: (Eq a) => [a] -> [a] -> Bool
 isPrefixOf [] _ = True
 isPrefixOf _ [] = False
 isPrefixOf (x : xs) (y : ys) = x == y && isPrefixOf xs ys
 
-isInfixOf :: Eq a => [a] -> [a] -> Bool
+isInfixOf :: (Eq a) => [a] -> [a] -> Bool
 isInfixOf [] _ = True
 isInfixOf _ [] = False
 isInfixOf (x : xs) (y : ys)
   | x == y = isInfixOf xs ys
   | otherwise = isInfixOf (x : xs) ys
 
-isSuffixOf :: Eq a => [a] -> [a] -> Bool
+isSuffixOf :: (Eq a) => [a] -> [a] -> Bool
 isSuffixOf l1 l2 = reverse l1 `isPrefixOf` reverse l2
 
 zip :: [a] -> [b] -> [(a, b)]
@@ -263,7 +263,7 @@ intercalate :: [a] -> [[a]] -> [a]
 intercalate _ [x] = x
 intercalate list (x : xs) = x ++ list ++ intercalate list xs
 
-nub :: Eq a => [a] -> [a]
+nub :: (Eq a) => [a] -> [a]
 nub [] = []
 nub (x : xs) = x : nub (filter (/= x) xs)
 

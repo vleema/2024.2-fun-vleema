@@ -87,6 +87,11 @@ removeRightMost Nil = Nil
 removeRightMost (Node _ leftTree Nil) = leftTree
 removeRightMost (Node value leftTree rightTree) = Node value leftTree $ removeRightMost rightTree
 
+rotateLeft :: BinTree a -> BinTree a
+rotateLeft (Node a Nil (Node b Nil (Node c Nil Nil))) = Node b (Node a Nil Nil) (Node c Nil Nil)
+rotateLeft (Node a Nil (Node b (Node d Nil Nil) (Node c Nil Nil))) =
+  Node b (Node a Nil (Node d Nil Nil)) (Node c Nil Nil)
+
 exampleTree1 :: BinTree Int
 exampleTree1 =
   Node
@@ -149,3 +154,41 @@ exampleTree3 =
      / \   / \
     3   7 12 18
 -}
+
+exampleTree4 :: BinTree Char
+exampleTree4 =
+  Node
+    'A'
+    Nil
+    ( Node
+        'B'
+        Nil
+        (Node 'C' Nil Nil)
+    )
+
+{-
+ A
+  \
+   B
+    \
+     C
+ -}
+
+exampleTree5 :: BinTree Char
+exampleTree5 =
+  Node
+    'A'
+    Nil
+    ( Node
+        'B'
+        (Node 'D' Nil Nil)
+        (Node 'C' Nil Nil)
+    )
+
+{-
+ A
+  \
+   B
+  | \
+ D   C
+ -}

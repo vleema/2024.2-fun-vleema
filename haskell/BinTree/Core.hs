@@ -27,12 +27,14 @@ postOrder (Node value leftTree rightTree) =
   postOrder leftTree ++ postOrder rightTree ++ show value ++ " "
 
 levelOrder :: (Show a) => BinTree a -> String
-levelOrder binTree = concat [showLevel level binTree | level <- [0 .. height binTree]]
+levelOrder binTree
+  = concat [showLevel level binTree | level <- [0 .. height binTree]]
 
 showLevel :: (Show a) => Int -> BinTree a -> String
 showLevel _ Nil = ""
 showLevel 0 (Node value _ _) = show value ++ " "
-showLevel n (Node _ leftTree rightTree) = showLevel (n - 1) leftTree ++ showLevel (n - 1) rightTree
+showLevel n (Node _ leftTree rightTree)
+  = showLevel (n - 1) leftTree ++ showLevel (n - 1) rightTree
 
 height :: BinTree a -> Int
 height Nil = 0

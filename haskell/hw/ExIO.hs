@@ -32,11 +32,15 @@ getSafeInt = do
 infixl 1 >>
 
 (>>) :: IO a -> IO b -> IO b
-ax >> ay = undefined
+ax >> ay = do
+  ax
+  ay
 
 -- pauses till the user presses any normal key
 pause :: IO ()
-pause = undefined
+pause = do
+  getChar
+  return ()
 
 skip :: IO ()
 skip = undefined

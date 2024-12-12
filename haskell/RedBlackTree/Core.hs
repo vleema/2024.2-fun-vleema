@@ -1,5 +1,7 @@
 module RedBlackTree.Core where
 
+import Direction (Direction (..), Path)
+
 data Color where
   Red :: Color
   Black :: Color
@@ -12,13 +14,6 @@ data RedBlackTree a
       , color :: Color
       }
   | Nil
-
-data Direction where
-  L :: Direction
-  R :: Direction
-  deriving (Show)
-
-type Path = [Direction]
 
 search :: (Ord a) => a -> RedBlackTree a -> Maybe Path
 search _ Nil = Nothing

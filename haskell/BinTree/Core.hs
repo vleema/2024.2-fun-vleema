@@ -1,15 +1,10 @@
 module BinTree.Core where
 
+import Direction (Direction (..), Path)
+
 data BinTree a where
   Node :: a -> BinTree a -> BinTree a -> BinTree a
   Nil :: BinTree a
-
-data Direction where
-  L :: Direction
-  R :: Direction
-  deriving (Show)
-
-type Path = [Direction]
 
 preOrder :: (Show a) => BinTree a -> String
 preOrder Nil = ""
@@ -27,14 +22,14 @@ postOrder (Node value leftTree rightTree) =
   postOrder leftTree ++ postOrder rightTree ++ show value ++ " "
 
 levelOrder :: (Show a) => BinTree a -> String
-levelOrder binTree
-  = concat [showLevel level binTree | level <- [0 .. height binTree]]
+levelOrder binTree =
+  concat [showLevel level binTree | level <- [0 .. height binTree]]
 
 showLevel :: (Show a) => Int -> BinTree a -> String
 showLevel _ Nil = ""
 showLevel 0 (Node value _ _) = show value ++ " "
-showLevel n (Node _ leftTree rightTree)
-  = showLevel (n - 1) leftTree ++ showLevel (n - 1) rightTree
+showLevel n (Node _ leftTree rightTree) =
+  showLevel (n - 1) leftTree ++ showLevel (n - 1) rightTree
 
 height :: BinTree a -> Int
 height Nil = 0
@@ -90,9 +85,10 @@ removeRightMost (Node _ leftTree Nil) = leftTree
 removeRightMost (Node value leftTree rightTree) = Node value leftTree $ removeRightMost rightTree
 
 rotateLeft :: BinTree a -> BinTree a
-rotateLeft (Node a Nil (Node b Nil (Node c Nil Nil))) = Node b (Node a Nil Nil) (Node c Nil Nil)
-rotateLeft (Node a Nil (Node b (Node d Nil Nil) (Node c Nil Nil))) =
-  Node b (Node a Nil (Node d Nil Nil)) (Node c Nil Nil)
+rotateLeft (Node a leftTree (Node b bLeftTree bRightTree)) = Node b (Node a leftTree bLeftTree) bRightTree
+
+rotateRight :: BinTree a -> BinTree a
+rotateRight (Node a (Node b bLeftTree bRightTree) rightTree) = Node b bLeftTree (Node a bRightTree rightTree)
 
 exampleTree1 :: BinTree Int
 exampleTree1 =

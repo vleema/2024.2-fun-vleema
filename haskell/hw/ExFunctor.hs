@@ -29,6 +29,8 @@ instance Funktor (Pair a) where
   fmap f (Pair a b) = Pair a (f b)
 
 -- what about functions?
+instance Funktor ((->) a) where
+  fmap = (.)
 
 -- what about Trees?
 instance Funktor BinTree where

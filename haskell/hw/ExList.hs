@@ -196,8 +196,9 @@ or [] = False
 or (bool : bools) = bool || or bools
 
 concat :: [[a]] -> [a]
-concat [] = []
-concat (list : lists) = list ++ concat lists
+-- concat [] = []
+-- concat (list : lists) = list ++ concat lists
+concat xs = P.foldr ([] ++) xs
 
 -- elem using the funciton 'any' above
 elem :: (Eq a) => a -> [a] -> Bool

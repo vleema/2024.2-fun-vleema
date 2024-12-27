@@ -32,7 +32,7 @@ class Functor (f :: * -> *) where
   fmap :: (a -> b) -> (f a -> f b)
 
   (<$) :: b -> f a -> f b
-  (<$) = undefined
+  (<$) = fmap . const
 
 {- LAWS
 
@@ -42,19 +42,19 @@ class Functor (f :: * -> *) where
  -}
 
 (<$>) :: (Functor f) => (a -> b) -> f a -> f b
-(<$>) = undefined
+(<$>) = fmap
 
 (<&>) :: (Functor f) => f a -> (a -> b) -> f b
-(<&>) = undefined
+(<&>) = flip fmap
 
 ($>) :: (Functor f) => f a -> b -> f b
-($>) = undefined
+($>) = flip (<$)
 
 unzip :: (Functor f) => f (a, b) -> (f a, f b)
-unzip = undefined
+unzip at = (fmap fst at, fmap snd at)
 
 void :: (Functor f) => f a -> f ()
-void = undefined
+void = fmap $ const ()
 
 -- syntactic associativity and precedence
 infixl 4 <$>, $>, <$
@@ -64,27 +64,33 @@ infixl 1 <&>
 
 -- List
 instance Functor [] where
-  fmap = undefined
+  fmap = map
 
 -- Maybe
 instance Functor Maybe where
-  fmap = undefined
+  fmap _ Nothing = Nothing
+  fmap f (Just x) = Just $ f x
 
 -- (α ×)
 instance Functor ((,) a) where
-  fmap = undefined
+  fmap :: (c -> b) -> (a, c) -> (a, b)
+  fmap f (a, c) = (a, f c)
 
 -- (α +)
 instance Functor (Either a) where
-  fmap = undefined
+  fmap :: (b -> c) -> Either a b -> Either a c
+  fmap f (Right b) = Right $ f b
+  fmap _ (Left a) = Left a
 
 -- (r →)
 instance Functor ((->) r) where
-  fmap = undefined
+  fmap = (.)
 
 -- IO
 instance Functor IO where
-  fmap = undefined
+  fmap f ax = do
+    x <- ax
+    pure $ f x
 
 ----------------------------------------------------------------
 -- Applicative
@@ -104,7 +110,7 @@ class (Functor f) => Applicative (f :: * -> *) where
  -}
 
 liftA :: (Applicative f) => (a -> b) -> f a -> f b
-liftA = undefined
+liftA = fmap
 
 liftA2 :: (Applicative f) => (a -> b -> c) -> f a -> f b -> f c
 liftA2 = undefined
@@ -139,8 +145,9 @@ infixl 4 <*>, *>, <*, <**>
 
 -- Maybe
 instance Applicative Maybe where
-  pure = undefined
-  (<*>) = undefined
+  pure = Just
+  Just f <*> Just a = Just $ f a
+  _ <*> _ = Nothing
 
 -- Lists with ambiguous computational aspect (non-determinism):
 -- Create an isomorphic copy of the type List a, called Ambiguous a

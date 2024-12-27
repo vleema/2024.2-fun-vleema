@@ -86,9 +86,19 @@ removeRightMost (Node value leftTree rightTree) = Node value leftTree $ removeRi
 
 rotateLeft :: BinTree a -> BinTree a
 rotateLeft (Node a leftTree (Node b bLeftTree bRightTree)) = Node b (Node a leftTree bLeftTree) bRightTree
+rotateLeft tree = tree
 
 rotateRight :: BinTree a -> BinTree a
 rotateRight (Node a (Node b bLeftTree bRightTree) rightTree) = Node b bLeftTree (Node a bRightTree rightTree)
+rotateRight tree = tree
+
+rotateRightLeft :: BinTree a -> BinTree a
+rotateRightLeft (Node a leftTree rightTree) = rotateLeft (Node a leftTree (rotateRight rightTree))
+rotateRightLeft tree = tree
+
+rotateLeftRight :: BinTree a -> BinTree a
+rotateLeftRight (Node a leftTree rightTree) = rotateRight (Node a (rotateLeft leftTree) rightTree)
+rotateLeftRight tree = tree
 
 exampleTree1 :: BinTree Int
 exampleTree1 =
@@ -190,3 +200,43 @@ exampleTree5 =
   | \
  D   C
  -}
+
+exampleTree6 :: BinTree Char
+exampleTree6 =
+  Node
+    'A'
+    ( Node
+        'B'
+        (Node 'D' Nil Nil)
+        (Node 'H' Nil Nil)
+    )
+    ( Node
+        'C'
+        (Node 'E' (Node 'J' Nil Nil) (Node 'I' Nil Nil))
+        (Node 'F' Nil Nil)
+    )
+
+{-
+           A
+       /       \
+      B         C
+     / \       / \
+    D   H     E   F
+       / \
+      J  I
+ - -}
+
+exampleTree7 :: BinTree Char
+exampleTree7 =
+  Node
+    'A'
+    ( Node
+        'B'
+        (Node 'D' Nil Nil)
+        (Node 'H' (Node 'J' Nil Nil) (Node 'I' Nil Nil))
+    )
+    ( Node
+        'C'
+        (Node 'E' Nil Nil)
+        (Node 'F' Nil Nil)
+    )
